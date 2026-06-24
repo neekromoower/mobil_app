@@ -84,10 +84,17 @@ def ensure_tables():
         traceback.print_exc()
 
 def main(page: ft.Page):
-    page.title = "ECOM MOBILE PRO"
+    page.title = "PC Parts Store"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 8
     page.scroll = ft.ScrollMode.AUTO
+
+    # ---------- ИКОНКА ПРИЛОЖЕНИЯ (без падения) ----------
+    try:
+        if os.path.exists("assets/icon.png"):
+            page.window_icon = "assets/icon.png"
+    except Exception as e:
+        print(f"Не удалось установить иконку: {e}")
 
     try:
         ensure_tables()
@@ -107,10 +114,9 @@ def main(page: ft.Page):
         child_aspect_ratio=1.2
     )
 
-    # Поле seller: без max_length и счётчика, только цифры, проверка при отправке
     seller = ft.TextField(
-        label="Seller number",
-        width=130,
+        label="Seller",
+        width=90,
         keyboard_type=ft.KeyboardType.NUMBER,
         value="1",
         dense=True,
@@ -121,7 +127,6 @@ def main(page: ft.Page):
 
     product_count_label = ft.Text("Товаров: 0", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_700)
 
-    # Поле поиска: без max_length и счётчика, программное ограничение 100 символов
     search_field = ft.TextField(
         label="Поиск по названию или бренду",
         prefix_icon=ft.Icons.SEARCH,
@@ -132,7 +137,6 @@ def main(page: ft.Page):
 
     def update_search(query):
         global search_query
-        # Программное ограничение длины до 100 символов
         if len(query) > 100:
             query = query[:100]
             search_field.value = query
@@ -145,6 +149,13 @@ def main(page: ft.Page):
         page.overlay.append(sb)
         sb.open = True
         page.update()
+
+    # ---------- БЕЙДЖ КОРЗИНЫ (вручную, без Badge) ----------
+    cart_badge = ft.Container(
+        content=ft.Text("0", size=11, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
+        bgcolor=ft.Colors.RED, border_radius=10, width=20, height=20,
+        alignment=ft.Alignment(0, 0), right=0, top=0, visible=False
+    )
 
     def update_cart_badge():
         total_items = sum(item["quantity"] for item in cart)
@@ -429,7 +440,6 @@ def main(page: ft.Page):
             notify("Введите номер продавца", ft.Colors.ORANGE)
             return
 
-        # Программная проверка длины (не более 5 цифр)
         if len(seller_num_str) > 5:
             notify("Номер продавца не может быть длиннее 5 цифр", ft.Colors.ORANGE)
             return
@@ -617,13 +627,13 @@ def main(page: ft.Page):
             ft.Divider(),
             ft.Text(
                 "1. Выбор товара – нажмите «+» на карточке товара, чтобы добавить в корзину.\n"
-                "2. Просмотр корзины – нажмите на иконку корзины в верхней панели.\n"
+                "2. Просмотр корзины – нажмите на иконку 🛒 в верхней панели.\n"
                 "3. Оформление заказа – в корзине нажмите «Оформить заказ», номер продавца берётся из поля вверху.\n"
                 "4. Очистка корзины – в корзине нажмите «Очистить корзину».\n"
                 "5. Фильтрация по категориям – выберите категорию товара.\n"
                 "6. Сортировка – используйте меню сортировки.\n"
                 "7. Поиск – введите название или бренд в поле поиска.\n"
-                "8. История заказов – нажмите на иконку «История» в верхней панели.\n"
+                "8. История заказов – нажмите на ⋮ и выберите «История заказов».\n"
                 "9. Обновление товаров – кнопка 🔄 рядом с сортировкой.\n"
                 "10. Номер продавца – только цифры от 1 до 99999."
             )
@@ -681,12 +691,6 @@ def main(page: ft.Page):
         page.update()
 
     # ---------- ИНТЕРФЕЙС ----------
-    cart_badge = ft.Container(
-        content=ft.Text("0", size=11, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
-        bgcolor=ft.Colors.RED, border_radius=10, width=20, height=20,
-        alignment=ft.Alignment(0, 0), right=0, top=0, visible=False
-    )
-
     refresh_btn = ft.IconButton(
         icon=ft.Icons.REFRESH,
         tooltip="Обновить товары",
@@ -694,18 +698,7 @@ def main(page: ft.Page):
         icon_color=ft.Colors.BLUE_700
     )
 
-    history_btn = ft.TextButton(
-        content=ft.Text("📜", size=28, color=ft.Colors.BLUE_700),
-        on_click=load_orders,
-        style=ft.ButtonStyle(padding=4),
-        tooltip="История"
-    )
-    help_btn = ft.TextButton(
-        content=ft.Text("❓", size=28, color=ft.Colors.BLUE_700),
-        on_click=show_help_dialog,
-        style=ft.ButtonStyle(padding=4),
-        tooltip="Справка"
-    )
+    # Кнопка корзины с кастомным бейджем
     cart_btn = ft.TextButton(
         content=ft.Text("🛒", size=28, color=ft.Colors.BLUE_700),
         on_click=show_cart_dialog,
@@ -713,9 +706,30 @@ def main(page: ft.Page):
         tooltip="Корзина"
     )
 
+    # Логотип (с проверкой)
+    logo_src = "assets/logo.png"
+    if os.path.exists(logo_src):
+        logo = ft.Image(src=logo_src, width=32, height=32)
+    else:
+        logo = ft.Text("🛍️", size=24)  # запасной вариант
+
     header = ft.Row([
-        ft.Text("ECOM MOBILE PRO", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_700),
-        ft.Row([seller, history_btn, help_btn, ft.Stack([cart_btn, cart_badge])], spacing=8)
+        ft.Row([
+            logo,
+            ft.Text("PC Parts Store", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_700),
+        ]),
+        ft.Row([
+            seller,
+            ft.Stack([cart_btn, cart_badge]),
+            ft.PopupMenuButton(
+                icon=ft.Icons.MORE_VERT,
+                tooltip="Меню",
+                items=[
+                    ft.PopupMenuItem(content=ft.Text("📜 История заказов"), on_click=load_orders),
+                    ft.PopupMenuItem(content=ft.Text("❓ Справка"), on_click=show_help_dialog),
+                ]
+            )
+        ], spacing=8)
     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
 
     categories = ["Все"]
