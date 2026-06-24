@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:   # разрешает запуск вручную
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,10 +24,10 @@ jobs:
 
     - name: Build APK
       run: |
-        flet build apk --name "ECOM MOBILE PRO" --verbose
+        flet build apk --verbose
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-release
+        name: ecom-mobile-pro-apk
         path: build/apk/app-release.apk
