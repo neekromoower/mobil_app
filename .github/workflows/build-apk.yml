@@ -10,24 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.22.0'
+
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y git curl unzip xz-utils zip libglu1-mesa
-
-    - name: Install Flutter SDK
-      run: |
-        git clone https://github.com/flutter/flutter.git -b stable $HOME/flutter
-        echo "$HOME/flutter/bin" >> $GITHUB_PATH
-        flutter config --no-analytics
+        sudo apt-get install -y libglu1-mesa
 
     - name: Install Python dependencies
       run: |
@@ -36,18 +34,17 @@ jobs:
 
     - name: Build APK
       run: |
-        export PATH="$HOME/.local/bin:$HOME/flutter/bin:$PATH"
         flutter config --enable-android
         flutter doctor
-        echo "y" | flet build apk --verbose
+        yes | flet build apk --verbose
 
-    - name: List build output
+    - name: Check build output
       if: always()
       run: |
         echo "Содержимое build/apk:"
-        find build/apk -type f || echo "Папка build/apk не найдена"
+        find build/apk -type f || echo "Папка build/apk отсутствует"
 
-    - name: Upload APK artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: ecom-mobile-pro-apk
