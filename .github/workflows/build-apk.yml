@@ -36,7 +36,7 @@ jobs:
       run: |
         flutter config --enable-android
         flutter doctor
-        yes | flet build apk --verbose
+        yes | flet build apk --verbose --accept-android-sdk-licenses
 
     - name: Check build output
       if: always()
