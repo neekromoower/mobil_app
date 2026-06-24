@@ -89,13 +89,6 @@ def main(page: ft.Page):
     page.padding = 8
     page.scroll = ft.ScrollMode.AUTO
 
-    # ---------- ИКОНКА ПРИЛОЖЕНИЯ (без падения) ----------
-    try:
-        if os.path.exists("assets/icon.png"):
-            page.window_icon = "assets/icon.png"
-    except Exception as e:
-        print(f"Не удалось установить иконку: {e}")
-
     try:
         ensure_tables()
     except Exception as e:
@@ -150,7 +143,7 @@ def main(page: ft.Page):
         sb.open = True
         page.update()
 
-    # ---------- БЕЙДЖ КОРЗИНЫ (вручную, без Badge) ----------
+    # Бейдж корзины (вручную)
     cart_badge = ft.Container(
         content=ft.Text("0", size=11, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
         bgcolor=ft.Colors.RED, border_radius=10, width=20, height=20,
@@ -690,7 +683,7 @@ def main(page: ft.Page):
         dialog.open = True
         page.update()
 
-    # ---------- ИНТЕРФЕЙС ----------
+    # ---------- ИНТЕРФЕЙС (без логотипа) ----------
     refresh_btn = ft.IconButton(
         icon=ft.Icons.REFRESH,
         tooltip="Обновить товары",
@@ -706,18 +699,8 @@ def main(page: ft.Page):
         tooltip="Корзина"
     )
 
-    # Логотип (с проверкой)
-    logo_src = "assets/logo.png"
-    if os.path.exists(logo_src):
-        logo = ft.Image(src=logo_src, width=32, height=32)
-    else:
-        logo = ft.Text("🛍️", size=24)  # запасной вариант
-
     header = ft.Row([
-        ft.Row([
-            logo,
-            ft.Text("PC Parts Store", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_700),
-        ]),
+        ft.Text("PC Parts Store", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_700),
         ft.Row([
             seller,
             ft.Stack([cart_btn, cart_badge]),
