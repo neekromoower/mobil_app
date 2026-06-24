@@ -32,11 +32,22 @@ jobs:
         pip install --upgrade flet
         pip install pymysql
 
+    - name: Ensure assets folder exists
+      run: |
+        mkdir -p assets
+        # Создаём пустые заглушки, чтобы код не падал из-за отсутствия файлов
+        if [ ! -f assets/logo.png ]; then
+          convert -size 32x32 xc:transparent assets/logo.png || echo "placeholder" > assets/logo.png
+        fi
+        if [ ! -f assets/icon.png ]; then
+          convert -size 1024x1024 xc:blue assets/icon.png || echo "placeholder" > assets/icon.png
+        fi
+
     - name: Build APK
       run: |
         flutter config --enable-android
         flutter doctor
-        yes | flet build apk --verbose --accept-android-sdk-licenses
+        yes | flet build apk --verbose
 
     - name: Check build output
       if: always()
