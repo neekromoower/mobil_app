@@ -143,11 +143,11 @@ def main(page: ft.Page):
         sb.open = True
         page.update()
 
-    # Бейдж корзины (вручную)
+    # Кастомный бейдж (красный кружок с числом)
     cart_badge = ft.Container(
         content=ft.Text("0", size=11, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
         bgcolor=ft.Colors.RED, border_radius=10, width=20, height=20,
-        alignment=ft.Alignment(0, 0), right=0, top=0, visible=False
+        alignment=ft.Alignment(0, 0), visible=False
     )
 
     def update_cart_badge():
@@ -591,66 +591,62 @@ def main(page: ft.Page):
             progress_bar.visible = False
             page.update()
 
-    # ---------- СПРАВОЧНЫЙ ДИАЛОГ ----------
+    # ---------- СПРАВОЧНЫЙ ДИАЛОГ (кнопки вертикально, по центру) ----------
     def show_help_dialog(e):
         close_all_dialogs()
 
-        about_program = ft.Column([
-            ft.Text("О программе", size=18, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.Text(
-                "Приложение для оформления заказов компьютерной техники.\n"
-                "Версия: 2.0 (прямое подключение к БД)\n"
-                "Разработано с использованием Python, Flet, MySQL."
-            )
-        ], spacing=10)
+        about_program = ft.Text(
+            "Приложение для оформления заказов компьютерной техники.\n\n"
+            "Версия: 2.0 (прямое подключение к БД)\n"
+            "Разработано с использованием Python, Flet, MySQL."
+        )
 
-        about_dev = ft.Column([
-            ft.Text("О разработчике", size=18, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.Text(
-                "Разработчик: Фейлер Станислав Константинович\n"
-                "Группа: ИС-943\n"
-                "Проект: Практическая работа по программному модулю магазин комплектующих для ПК"
-            )
-        ], spacing=10)
+        about_dev = ft.Text(
+            "Разработчик: Фейлер Станислав Константинович\n"
+            "Группа: ИС-943\n"
+            "Проект: Практическая работа по программному модулю магазин комплектующих для ПК"
+        )
 
-        user_guide = ft.Column([
-            ft.Text("Руководство пользователя", size=18, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.Text(
-                "1. Выбор товара – нажмите «+» на карточке товара, чтобы добавить в корзину.\n"
-                "2. Просмотр корзины – нажмите на иконку 🛒 в верхней панели.\n"
-                "3. Оформление заказа – в корзине нажмите «Оформить заказ», номер продавца берётся из поля вверху.\n"
-                "4. Очистка корзины – в корзине нажмите «Очистить корзину».\n"
-                "5. Фильтрация по категориям – выберите категорию товара.\n"
-                "6. Сортировка – используйте меню сортировки.\n"
-                "7. Поиск – введите название или бренд в поле поиска.\n"
-                "8. История заказов – нажмите на ⋮ и выберите «История заказов».\n"
-                "9. Обновление товаров – кнопка 🔄 рядом с сортировкой.\n"
-                "10. Номер продавца – только цифры от 1 до 99999."
-            )
-        ], spacing=10)
+        user_guide = ft.Text(
+            "1. Выбор товара – нажмите «+» на карточке товара, чтобы добавить в корзину.\n\n"
+            "2. Просмотр корзины – нажмите на синюю кнопку с тележкой в правом нижнем углу.\n\n"
+            "3. Оформление заказа – в корзине нажмите «Оформить заказ», номер продавца берётся из поля вверху.\n\n"
+            "4. Очистка корзины – в корзине нажмите «Очистить корзину».\n\n"
+            "5. Фильтрация по категориям – выберите категорию товара.\n\n"
+            "6. Сортировка – используйте меню сортировки.\n\n"
+            "7. Поиск – введите название или бренд в поле поиска.\n\n"
+            "8. История заказов – нажмите на ⋮ вверху и выберите «История заказов».\n\n"
+            "9. Обновление товаров – кнопка 🔄 рядом с сортировкой."
+        )
 
-        display = ft.Container(content=about_program, padding=5, expand=True)
+        display = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=10)
 
         def switch_tab(tab_index):
+            display.controls.clear()
             if tab_index == 0:
-                display.content = about_program
+                display.controls.append(ft.Text("О программе", size=18, weight=ft.FontWeight.BOLD))
+                display.controls.append(ft.Divider())
+                display.controls.append(about_program)
             elif tab_index == 1:
-                display.content = about_dev
+                display.controls.append(ft.Text("О разработчике", size=18, weight=ft.FontWeight.BOLD))
+                display.controls.append(ft.Divider())
+                display.controls.append(about_dev)
             else:
-                display.content = user_guide
+                display.controls.append(ft.Text("Руководство пользователя", size=18, weight=ft.FontWeight.BOLD))
+                display.controls.append(ft.Divider())
+                display.controls.append(user_guide)
             page.update()
 
-        tabs_row = ft.Row(
+        # Кнопки вертикально, выровнены по центру
+        tabs_column = ft.Column(
             [
                 ft.TextButton("О программе", on_click=lambda e: switch_tab(0)),
                 ft.TextButton("Разработчик", on_click=lambda e: switch_tab(1)),
                 ft.TextButton("Руководство", on_click=lambda e: switch_tab(2)),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
-            spacing=10,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=8,
         )
 
         def close_help_dialog():
@@ -673,7 +669,11 @@ def main(page: ft.Page):
             modal=False,
             title=title_row,
             content=ft.Container(
-                content=ft.Column([tabs_row, ft.Divider(), display]),
+                content=ft.Column([
+                    tabs_column,
+                    ft.Divider(height=5),
+                    display
+                ], spacing=0, expand=True),
                 width=page.width * 0.85,
                 height=page.height * 0.7,
                 padding=10
@@ -681,9 +681,10 @@ def main(page: ft.Page):
         )
         page.overlay.append(dialog)
         dialog.open = True
+        switch_tab(0)
         page.update()
 
-    # ---------- ИНТЕРФЕЙС (без логотипа) ----------
+    # ---------- ИНТЕРФЕЙС ----------
     refresh_btn = ft.IconButton(
         icon=ft.Icons.REFRESH,
         tooltip="Обновить товары",
@@ -691,19 +692,10 @@ def main(page: ft.Page):
         icon_color=ft.Colors.BLUE_700
     )
 
-    # Кнопка корзины с кастомным бейджем
-    cart_btn = ft.TextButton(
-        content=ft.Text("🛒", size=28, color=ft.Colors.BLUE_700),
-        on_click=show_cart_dialog,
-        style=ft.ButtonStyle(padding=4),
-        tooltip="Корзина"
-    )
-
     header = ft.Row([
         ft.Text("PC Parts Store", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_700),
         ft.Row([
             seller,
-            ft.Stack([cart_btn, cart_badge]),
             ft.PopupMenuButton(
                 icon=ft.Icons.MORE_VERT,
                 tooltip="Меню",
@@ -779,6 +771,22 @@ def main(page: ft.Page):
     )
 
     page.add(main_content)
+
+    # ====== ПЛАВАЮЩАЯ КОРЗИНА ======
+    cart_fab = ft.FloatingActionButton(
+        content=ft.Stack([
+            ft.Icon(ft.Icons.SHOPPING_CART, color=ft.Colors.WHITE, size=28),
+            ft.Container(
+                content=cart_badge,
+                right=0,
+                top=0,
+            )
+        ]),
+        on_click=show_cart_dialog,
+        bgcolor=ft.Colors.BLUE_700,
+        shape=ft.CircleBorder(),
+    )
+    page.floating_action_button = cart_fab
 
     def page_resize(e):
         if page.width > 1000:
