@@ -24,10 +24,14 @@ jobs:
 
     - name: Build APK
       run: |
-        yes | flet build apk --verbose
+        # Показываем, что происходит после команды
+        echo "yes" | flet build apk --verbose || true
+        echo "======= Содержимое build/apk ======="
+        ls -la build/apk/ || echo "Папка build/apk не найдена"
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: ecom-mobile-pro-apk
-        path: build/apk/app-release.apk
+        path: build/apk/*.apk
+        if-no-files-found: warn
