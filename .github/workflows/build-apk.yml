@@ -28,7 +28,6 @@ jobs:
         git clone https://github.com/flutter/flutter.git -b stable $HOME/flutter
         echo "$HOME/flutter/bin" >> $GITHUB_PATH
         flutter config --no-analytics
-        flutter doctor
 
     - name: Install Python dependencies
       run: |
@@ -37,13 +36,15 @@ jobs:
 
     - name: Build APK
       run: |
+        export PATH="$HOME/.local/bin:$HOME/flutter/bin:$PATH"
         flutter config --enable-android
-        flet build apk --verbose
+        flutter doctor
+        echo "y" | flet build apk --verbose
 
     - name: List build output
       if: always()
       run: |
-        echo "Содержимое папки build/apk:"
+        echo "Содержимое build/apk:"
         find build/apk -type f || echo "Папка build/apk не найдена"
 
     - name: Upload APK artifact
