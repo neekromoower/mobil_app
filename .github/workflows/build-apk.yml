@@ -12,20 +12,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
+    - name: Setup Java
+      uses: actions/setup-java@v3
       with:
-        python-version: '3.10'
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 33
+        build-tools: 33.0.0
+
+    - name: Accept Android licenses
+      run: yes | sdkmanager --licenses
 
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.22.0'
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libglu1-mesa
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
     - name: Install Python dependencies
       run: |
@@ -35,19 +45,15 @@ jobs:
     - name: Ensure assets folder exists
       run: |
         mkdir -p assets
-        # Создаём пустые заглушки, чтобы код не падал из-за отсутствия файлов
-        if [ ! -f assets/logo.png ]; then
-          convert -size 32x32 xc:transparent assets/logo.png || echo "placeholder" > assets/logo.png
-        fi
-        if [ ! -f assets/icon.png ]; then
-          convert -size 1024x1024 xc:blue assets/icon.png || echo "placeholder" > assets/icon.png
-        fi
+        # Создаём пустые заглушки, чтобы сборка не падала при отсутствии картинок
+        if [ ! -f assets/logo.png ]; then echo "placeholder" > assets/logo.png; fi
+        if [ ! -f assets/icon.png ]; then echo "placeholder" > assets/icon.png; fi
 
     - name: Build APK
       run: |
         flutter config --enable-android
         flutter doctor
-        yes | flet build apk --verbose
+        flet build apk --verbose
 
     - name: Check build output
       if: always()
